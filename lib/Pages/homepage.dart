@@ -79,7 +79,6 @@ class _HomePageState extends State<HomePage> {
         return;
       }
 
-      //bool _validCep = false;
       setState(() {
         _searchingCep = true;
       });
