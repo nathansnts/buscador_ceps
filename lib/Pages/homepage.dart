@@ -16,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   String _resultError = '';
   bool _searchingCep = false;
 
+  @override
   void dispose() {
     super.dispose();
     txt.clear();
@@ -61,58 +62,58 @@ class _HomePageState extends State<HomePage> {
           children: const [
             CircularProgressIndicator(),
             SizedBox(width: 15),
-            Text('Buscando cep..'),
+            Text('Buscando cep...'),
           ],
         ),
       ),
     );
   }
 
+  Future _searchCep() async {
+    if (txt.text.length != 9 || txt.text.isEmpty) {
+      setState(() {
+        messageDialog();
+      });
+      return;
+    }
+
+    setState(() {
+      _searchingCep = true;
+    });
+    searchProgress();
+
+    var cp = txt.text.replaceAll('-', '');
+    // ignore: non_constant_identifier_names
+
+    try {
+      final resultCep = await ConsultServiceCep.searchAddres(cep: cp);
+
+      setState(() {
+        _resultData = 'Rua: ${resultCep.logradouro}\n \n'
+            'Cidade: ${resultCep.localidade} \n \n'
+            'Bairro: ${resultCep.bairro}\n \n'
+            'Estado: ${resultCep.uf}';
+
+        _searchingCep = false;
+        _resultError = '';
+      });
+    } catch (e) {
+      setState(() {
+        _searchingCep = false;
+        _resultError = 'Erro ao realizar a busca do cep!';
+        _resultData = '';
+      });
+      Navigator.of(context).pop();
+      return;
+    }
+
+    // ignore: use_build_context_synchronously
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     // ignore: no_leading_underscores_for_local_identifiers
-    Future _searchCep() async {
-      if (txt.text.length != 9 || txt.text.isEmpty) {
-        setState(() {
-          messageDialog();
-        });
-        return;
-      }
-
-      //bool _validCep = false;
-      setState(() {
-        _searchingCep = true;
-      });
-      searchProgress();
-
-      var cp = txt.text.replaceAll('-', '');
-      // ignore: non_constant_identifier_names
-
-      try {
-        final resultCep = await ConsultServiceCep.searchAddres(cep: cp);
-
-        setState(() {
-          _resultData = 'Rua: ${resultCep.logradouro}\n \n'
-              'Cidade: ${resultCep.localidade} \n \n'
-              'Bairro: ${resultCep.bairro}\n \n'
-              'Estado: ${resultCep.uf}';
-
-          _searchingCep = false;
-          _resultError = '';
-        });
-      } catch (e) {
-        setState(() {
-          _searchingCep = false;
-          _resultError = 'Erro ao realizar a busca do cep';
-          _resultData = '';
-        });
-        Navigator.of(context).pop();
-        return;
-      }
-
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).pop();
-    }
 
     return Scaffold(
       appBar: AppBar(
